@@ -1,4 +1,0 @@
-﻿  C:\Program Files\Microsoft SDKs\Kinect\v1.8\\Assemblies\Microsoft.Kinect.dll
-  1 File(s) copied
-  MultiDeviceApp.cpp
-LINK : fatal error LNK1104: cannot open file 'cinder_d.lib'
