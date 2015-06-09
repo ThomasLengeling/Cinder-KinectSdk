@@ -68,28 +68,28 @@ class Bone
 {
 public:
 	//! Returns rotation of the bone relative to camera coordinates.
-	const ci::Quatf&		getAbsoluteRotation() const;
+	const ci::quat&		getAbsoluteRotation() const;
 	//! Returns rotation matrix of the bone relative to camera coordinates.
-	const ci::Matrix44f&	getAbsoluteRotationMatrix() const;
+	const ci::mat4&	getAbsoluteRotationMatrix() const;
 	//! Returns index of end joint.
 	JointName				getEndJoint() const;
 	//! Returns position of the bone's start joint.
-	const ci::Vec3f&		getPosition() const;
+	const ci::vec3&		getPosition() const;
 	//! Returns rotation of the bone relative to the parent bone.
-	const ci::Quatf&		getRotation() const;
+	const ci::quat&		getRotation() const;
 	//! Returns rotation matrix of the bone relative to the parent bone.
-	const ci::Matrix44f&	getRotationMatrix() const;
+	const ci::mat4&	getRotationMatrix() const;
 	//! Returns index of start joint.
 	JointName				getStartJoint() const;
 private:
 	Bone( const Vector4& position, const _NUI_SKELETON_BONE_ORIENTATION& bone );
-	ci::Matrix44f	mAbsRotMat;
-	ci::Quatf		mAbsRotQuat;
+	ci::mat4	mAbsRotMat;
+	ci::quat		mAbsRotQuat;
 	JointName		mJointStart;
 	JointName		mJointEnd;
-	ci::Vec3f		mPosition;
-	ci::Matrix44f	mRotMat;
-	ci::Quatf		mRotQuat;
+	ci::vec3		mPosition;
+	ci::mat4	mRotMat;
+	ci::quat		mRotQuat;
 
 	friend class	Kinect;
 };
@@ -106,7 +106,7 @@ public:
 	//! Returns resolution of depth image.
 	ImageResolution		getDepthResolution() const; 
 	//! Returns size of depth image.
-	const ci::Vec2i&	getDepthSize() const; 
+	const ci::ivec2&	getDepthSize() const; 
 	//! Returns unique ID for this device.
 	const std::string&	getDeviceId() const;
 	//! Returns 0-index for this device.
@@ -114,7 +114,7 @@ public:
 	//! Returns resolution of video image.
 	ImageResolution		getColorResolution() const; 
 	//! Returns size of video image.
-	const ci::Vec2i&	getColorSize() const; 
+	const ci::ivec2&	getColorSize() const; 
 	//! Returns true if depth tracking is enabled.
 	bool				isDepthEnabled() const;
 	//! Returns true if background remove is enabled.
@@ -155,9 +155,9 @@ private:
 	bool				mEnabledColor;
 
 	ImageResolution		mDepthResolution;
-	ci::Vec2i			mDepthSize;
+	ci::ivec2			mDepthSize;
 	ImageResolution		mColorResolution;
-	ci::Vec2i			mColorSize;
+	ci::ivec2			mColorSize;
 
 	std::string			mDeviceId;
 	int32_t				mDeviceIndex;
@@ -190,7 +190,7 @@ public:
 	inline uint32_t					addDepthCallback( T callback, Y *callbackObject )
 	{
 		uint32_t id = mCallbacks.empty() ? 0 : mCallbacks.rbegin()->first + 1;
-		mCallbacks.insert( std::make_pair( id, CallbackRef( new Callback( mSignalDepth.connect( std::bind( callback, callbackObject, std::_1, std::_2 ) ) ) ) ) );
+		mCallbacks.insert(std::make_pair(id, CallbackRef(new Callback(mSignalDepth.connect(std::bind(callback, callbackObject, std::placeholders::_1, std::placeholders::_2))))));
 		return id;
 	}
 	//! Adds skeleton tracking callback.
@@ -198,7 +198,7 @@ public:
 	inline uint32_t					addSkeletonTrackingCallback( T callback, Y *callbackObject )
 	{
 		uint32_t id = mCallbacks.empty() ? 0 : mCallbacks.rbegin()->first + 1;
-		mCallbacks.insert( std::make_pair( id, CallbackRef( new Callback( mSignalSkeleton.connect( std::bind( callback, callbackObject, std::_1, std::_2 ) ) ) ) ) );
+		mCallbacks.insert(std::make_pair(id, CallbackRef(new Callback(mSignalSkeleton.connect(std::bind(callback, callbackObject, std::placeholders::_1, std::placeholders::_2))))));
 		return id;
 	}
 	//! Adds video tracking callback.
@@ -206,7 +206,7 @@ public:
 	inline uint32_t					addColorCallback( T callback, Y *callbackObject )
 	{
 		uint32_t id = mCallbacks.empty() ? 0 : mCallbacks.rbegin()->first + 1;
-		mCallbacks.insert( std::make_pair( id, CallbackRef( new Callback( mSignalColor.connect( std::bind( callback, callbackObject, std::_1, std::_2 ) ) ) ) ) );
+		mCallbacks.insert(std::make_pair(id, CallbackRef(new Callback(mSignalColor.connect(std::bind(callback, callbackObject, std::placeholders::_1, std::placeholders::_2))))));
 		return id;
 	}
 	//! Removes callback.
@@ -237,7 +237,7 @@ public:
 	void							removeBackground( bool remove = true );
 
 	//! Returns depth value as 0.0 - 1.0 float for pixel at \a pos.
-	float							getDepthAt( const ci::Vec2i& v ) const;
+	float							getDepthAt( const ci::ivec2& v ) const;
 	//! Returns frame rate of depth image processing.
 	float							getDepthFrameRate() const;
 	//! Returns options object for this device.
@@ -261,12 +261,12 @@ public:
 	bool							isFlipped() const;
 
 	//! Returns pixel location of skeleton position in depth image.
-	ci::Vec2i						getSkeletonDepthPos( const ci::Vec3f& v );
+	ci::ivec2						getSkeletonDepthPos( const ci::vec3& v );
 	//! Returns pixel location of skeleton position in color image.
-	ci::Vec2i						getSkeletonColorPos( const ci::Vec3f& v );
+	ci::ivec2						getSkeletonColorPos( const ci::vec3& v );
 
 	//! Returns pixel location of color position in depth image.
-	ci::Vec2i						getColorDepthPos( const ci::Vec2i& v );
+	ci::ivec2						getColorDepthPos( const ci::ivec2& v );
 
 	//! Sets device angle to \a degrees. Default is 0.
 	void							setTilt( int32_t degrees = 0 );

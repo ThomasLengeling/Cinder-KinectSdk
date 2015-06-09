@@ -35,11 +35,14 @@
 */
 
 // Includes
-#include "cinder/app/AppBasic.h"
+#include "cinder/app/App.h"
 #include "cinder/gl/gl.h"
+#include "cinder/app/RendererGl.h"
+
 #include "cinder/gl/Texture.h"
 #include "cinder/ImageIo.h"
 #include "cinder/Utilities.h"
+
 #include "Kinect.h"
 
 /* 
@@ -50,7 +53,7 @@
 * its image, then connect the device to an addition USB
 * controller.
 */
-class MultiDeviceApp : public ci::app::AppBasic 
+class MultiDeviceApp : public ci::app::App
 {
 
 public:
@@ -58,7 +61,7 @@ public:
 	// Cinder callbacks
 	void								draw();
 	void								keyDown( ci::app::KeyEvent event );
-	void								prepareSettings( ci::app::AppBasic::Settings *settings );
+	static void							prepareSettings(ci::app::App::Settings *settings);
 	void								shutdown();
 	void								setup();
 	void								update();
@@ -70,7 +73,7 @@ private:
 	{
 		int32_t					mCallbackId;
 		KinectSdk::KinectRef	mKinect;
-		ci::gl::Texture			mTexture;
+		ci::gl::TextureRef		mTexture;
 	};
 	std::vector<Device>			mDevices;
 
@@ -93,7 +96,8 @@ void MultiDeviceApp::draw()
 {
 
 	// Clear window
-	gl::setViewport( getWindowBounds() );
+
+	//gl::setViewport( getWindowBounds() );
 	gl::clear( Colorf::black() );
 	
 	// Draw images
@@ -130,7 +134,7 @@ void MultiDeviceApp::onDepthData( ci::Surface16u surface, const KinectSdk::Devic
 	int32_t index = deviceOptions.getDeviceIndex();
 	for ( size_t i = 0; i < mDevices.size(); ++i ) {
 		if ( index == mDevices.at( i ).mKinect->getDeviceOptions().getDeviceIndex() ) {
-			mDevices.at( i ).mTexture = gl::Texture( surface );
+			mDevices.at( i ).mTexture = gl::Texture::create( surface );
 			break;
 		}
 	}
@@ -173,7 +177,7 @@ void MultiDeviceApp::setup()
 		device.mKinect = Kinect::create();
 		device.mKinect->start( deviceOptions );
 		device.mCallbackId = device.mKinect->addDepthCallback( &MultiDeviceApp::onDepthData, this );
-		device.mTexture = gl::Texture( 320, 240 );
+		device.mTexture = gl::Texture::create( 320, 240 );
 		
 		mDevices.push_back( device );
 
@@ -208,4 +212,4 @@ void MultiDeviceApp::update()
 }
 
 // Run application
-CINDER_APP_BASIC( MultiDeviceApp, RendererGl )
+CINDER_APP(MultiDeviceApp, RendererGl, &MultiDeviceApp::prepareSettings)

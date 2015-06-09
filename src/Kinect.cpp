@@ -52,20 +52,20 @@ using namespace std;
 
 const double kTiltRequestInterval = 1.5;
 
-Matrix44f toMatrix44f( const Matrix4& matrix ) 
+mat4 toMatrix44f( const Matrix4& matrix ) 
 {
-	return Matrix44f( Vec4f( matrix.M11, matrix.M12, matrix.M13, matrix.M14 ), 
-		Vec4f( matrix.M21, matrix.M22, matrix.M23, matrix.M24 ), 
-		Vec4f( matrix.M31, matrix.M32, matrix.M33, matrix.M34 ), 
-		Vec4f( matrix.M41, matrix.M42, matrix.M43, matrix.M44 ) );
+	return mat4( vec4( matrix.M11, matrix.M12, matrix.M13, matrix.M14 ), 
+		vec4( matrix.M21, matrix.M22, matrix.M23, matrix.M24 ), 
+		vec4( matrix.M31, matrix.M32, matrix.M33, matrix.M34 ), 
+		vec4( matrix.M41, matrix.M42, matrix.M43, matrix.M44 ) );
 }
-Quatf toQuatf( const Vector4& vec ) 
+quat toQuatf( const Vector4& vec ) 
 {
-	return Quatf( vec.w, vec.x, vec.y, vec.z );
+	return quat( vec.w, vec.x, vec.y, vec.z );
 }
-Vec3f toVec3f( const Vector4& vec ) 
+vec3 toVec3f( const Vector4& vec ) 
 {
-	return Vec3f( vec.x, vec.y, vec.z );
+	return vec3( vec.x, vec.y, vec.z );
 }
 
 void CALLBACK deviceStatus( long hr, const WCHAR *instanceName, const WCHAR *deviceId, void *data )
@@ -100,11 +100,11 @@ Bone::Bone( const Vector4& position, const _NUI_SKELETON_BONE_ORIENTATION& bone 
 	mRotMat		= toMatrix44f( bone.hierarchicalRotation.rotationMatrix );
 }
 
-const Quatf& Bone::getAbsoluteRotation() const 
+const quat& Bone::getAbsoluteRotation() const 
 { 
 	return mAbsRotQuat; 
 }
-const Matrix44f& Bone::getAbsoluteRotationMatrix() const 
+const mat4& Bone::getAbsoluteRotationMatrix() const 
 { 
 	return mAbsRotMat; 
 }
@@ -112,15 +112,15 @@ JointName Bone::getEndJoint() const
 {
 	return mJointEnd;
 }
-const Vec3f& Bone::getPosition() const 
+const vec3& Bone::getPosition() const 
 { 
 	return mPosition; 
 }
-const Quatf& Bone::getRotation() const 
+const quat& Bone::getRotation() const 
 { 
 	return mRotQuat; 
 }
-const Matrix44f& Bone::getRotationMatrix() const 
+const mat4& Bone::getRotationMatrix() const 
 { 
 	return mRotMat; 
 }
@@ -181,7 +181,7 @@ ImageResolution DeviceOptions::getDepthResolution() const
 	return mDepthResolution;
 }
 	
-const Vec2i& DeviceOptions::getDepthSize() const
+const ivec2& DeviceOptions::getDepthSize() const
 {
 	return mDepthSize;
 }
@@ -201,7 +201,7 @@ ImageResolution DeviceOptions::getColorResolution() const
 	return mColorResolution;
 }
 
-const Vec2i& DeviceOptions::getColorSize() const 
+const ivec2& DeviceOptions::getColorSize() const 
 {
 	return mColorSize;
 }
@@ -241,20 +241,20 @@ DeviceOptions& DeviceOptions::setDepthResolution( const ImageResolution& resolut
 	mDepthResolution = resolution;
 	switch ( mDepthResolution ) {
 	case ImageResolution::NUI_IMAGE_RESOLUTION_640x480:
-		mDepthSize					= Vec2i( 640, 480 );
+		mDepthSize					= ivec2( 640, 480 );
 		mEnabledUserTracking		= false;
 		mEnabledSkeletonTracking	= false;
 		mEnabledSeatedMode			= false;
 		break;
 	case ImageResolution::NUI_IMAGE_RESOLUTION_320x240:
-		mDepthSize = Vec2i( 320, 240 );
+		mDepthSize = ivec2( 320, 240 );
 		break;
 	case ImageResolution::NUI_IMAGE_RESOLUTION_80x60:
-		mDepthSize = Vec2i( 80, 60 );
+		mDepthSize = ivec2( 80, 60 );
 		break;
 	default:
 		mDepthResolution = NUI_IMAGE_RESOLUTION_INVALID;
-		mDepthSize = Vec2i::zero();
+		mDepthSize = ivec2(0);
 		mEnabledDepth = false;
 		break;
 	}
@@ -278,14 +278,14 @@ DeviceOptions& DeviceOptions::setColorResolution( const ImageResolution& resolut
 	mColorResolution = resolution;
 	switch ( mColorResolution ) {
 	case ImageResolution::NUI_IMAGE_RESOLUTION_1280x960:
-		mColorSize = Vec2i( 1280, 960 );
+		mColorSize = ivec2( 1280, 960 );
 		break;
 	case ImageResolution::NUI_IMAGE_RESOLUTION_640x480:
-		mColorSize = Vec2i( 640, 480 );
+		mColorSize = ivec2( 640, 480 );
 		break;
 	default:
 		mColorResolution = NUI_IMAGE_RESOLUTION_INVALID;
-		mColorSize = Vec2i::zero();
+		mColorSize = ivec2(0);
 		mEnabledColor = false;
 		break;
 	}
@@ -425,14 +425,14 @@ void Kinect::error( long hr ) {
 	}
 }
 
-float Kinect::getDepthAt( const ci::Vec2i& pos ) const
+float Kinect::getDepthAt( const ci::ivec2& pos ) const
 {
 	float depthNorm		= 0.0f;
-	if ( mDepthSurface ) {
+//	if ( mDepthSurface.getSize() > vec2(0) {
 		uint16_t depth	= 0x10000 - mDepthSurface.getPixel( pos ).r;
 		depth			= depth << 2;
 		depthNorm		= 1.0f - (float)depth / 65535.0f;
-	}
+	//}
 	return depthNorm;
 }
 
@@ -486,7 +486,7 @@ float Kinect::getColorFrameRate() const
 	return mFrameRateColor; 
 }
 
-Vec2i Kinect::getSkeletonDepthPos( const ci::Vec3f& position )
+ivec2 Kinect::getSkeletonDepthPos( const ci::vec3& position )
 {
 	float x;
 	float y;
@@ -496,10 +496,10 @@ Vec2i Kinect::getSkeletonDepthPos( const ci::Vec3f& position )
 	pos.z = position.z;
 	pos.w = 1.0f;
 	NuiTransformSkeletonToDepthImage( pos, &x, &y, mDeviceOptions.getDepthResolution() );
-	return Vec2i( (int32_t)x, (int32_t)y );
+	return ivec2( (int32_t)x, (int32_t)y );
 }
 
-Vec2i Kinect::getSkeletonColorPos( const ci::Vec3f& position )
+ivec2 Kinect::getSkeletonColorPos( const ci::vec3& position )
 {
 	float x;
 	float y;
@@ -509,15 +509,15 @@ Vec2i Kinect::getSkeletonColorPos( const ci::Vec3f& position )
 	pos.z = position.z;
 	pos.w = 1.0f;
 	NuiTransformSkeletonToDepthImage( pos, &x, &y, mDeviceOptions.getColorResolution() );
-	return Vec2i( (int32_t)x, (int32_t)y );
+	return ivec2( (int32_t)x, (int32_t)y );
 }
 
-Vec2i Kinect::getColorDepthPos( const ci::Vec2i& v )
+ivec2 Kinect::getColorDepthPos( const ci::ivec2& v )
 {
 	long x;
 	long y;
 	mSensor->NuiImageGetColorPixelCoordinatesFromDepthPixelAtResolution( mDeviceOptions.getColorResolution(), mDeviceOptions.getDepthResolution(), 0, v.x, v.y, mDepthSurface.getPixel( v ).r, &x, &y ); 
-	return Vec2i( (int32_t)x, (int32_t)y );
+	return ivec2( (int32_t)x, (int32_t)y );
 }
 
 void Kinect::init( bool reset )
@@ -946,7 +946,7 @@ void Kinect::start( const DeviceOptions& deviceOptions )
 
 		// Clamp device index
 		if ( index >= 0 ) {
-			index = math<int32_t>::clamp( index, 0, math<int32_t>::max( getDeviceCount() - 1, 0 ) );
+			index = math<int32_t>::clamp(index, 0, max<int32_t>(getDeviceCount() - 1, 0));
 		}
 
 		// Initialize device instance
@@ -1037,7 +1037,7 @@ void Kinect::start( const DeviceOptions& deviceOptions )
 
 		// Initialize depth image
 		if ( mDeviceOptions.getDepthResolution() != ImageResolution::NUI_IMAGE_RESOLUTION_INVALID ) {
-			const Vec2i& depthSize = mDeviceOptions.getDepthSize();
+			const ivec2& depthSize = mDeviceOptions.getDepthSize();
 			if ( mDeviceOptions.isDepthEnabled() && !openDepthStream() ) {
 				return;
 			}
@@ -1047,7 +1047,7 @@ void Kinect::start( const DeviceOptions& deviceOptions )
 
 		// Initialize video image
 		if ( mDeviceOptions.getColorResolution() != ImageResolution::NUI_IMAGE_RESOLUTION_INVALID ) {
-			const Vec2i& videoSize = mDeviceOptions.getColorSize();
+			const ivec2& videoSize = mDeviceOptions.getColorSize();
 			if ( mDeviceOptions.isColorEnabled() && !openColorStream() ) {
 				return;
 			}
